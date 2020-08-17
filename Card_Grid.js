@@ -69,10 +69,13 @@ function Creat_card(card_bgd_id,card_item_class,set_card,move) {
         function on_down()
         {
             status.onclick=1;
-            status.node.style.left=mouse.x-set_card.card_w/2+"px";
-            status.node.style.top=mouse.y-set_card.card_h/2+"px";
+            status.node.style.left=mouse.x-100/2+"px";
+            status.node.style.top=mouse.y-150/2+"px";
+            //status.node.style.left=mouse.x-set_card.card_w/2+"px";
+            //status.node.style.top=mouse.y-set_card.card_h/2+"px";
             status.node.style['z-index']="999";//将卡片放在最前面
             move.fresh_blank_index(mouse);
+            //console.log(set_card.card_w);
             //blank_index=pos_index.pos_to_index(mouse);
 
         }
@@ -123,19 +126,44 @@ function Pos_index(set_card) {//包含pos于index相互转换，以及卡片位�
 
     }
 
-    this.set_card_pos=function (ca,index) {
-        var set=that.index_to_pos(index);
+    this.set_card_pos=function (ca,index) {//卡片移动控制函数
 
-        ca.style.left=set.x+20+"px";
-        ca.style.top=set.y+20+"px";
+        var set=that.index_to_pos(index);
+        set.x+=20;
+        set.y+=20;
+        var pp="left:"+set.x+"px;top:"+set.y+"px;";
+        var style = document.createElement('style');
+        var str="@keyframes myfirst"+index+"\n{100% {"+pp+"}\n} ";
+        style.innerHTML =str;
+        //console.log(str);
+
+        //console.log(str);
+
+        // 获取第一个脚本标记
+        var ref = document.querySelector('script');
+
+        // 在第一个脚本标签之前插入新样式
+        ref.parentNode.insertBefore(style, ref);
+        ca.style.animation="myfirst"+index+" 0.5s";
+        setTimeout(function(){
+            ca.style.left=set.x+"px";
+            ca.style.top=set.y+"px";
+
+        },500);
+        //ca.style.left=set.x+20+"px";
+        //ca.style.top=set.y+20+"px";
     }
 
 
-    this.fresh_pos=function(card) {//根据index刷新卡片的位置
+    this.fresh_pos=function(card,idx) {//根据index刷新卡片的位置
 
         for(let i=0;i<card.length;i++)
         {
-            that.set_card_pos(card[i].node,card[i].index);
+            if(card[i].index!=idx)
+            {
+                that.set_card_pos(card[i].node,card[i].index);
+            }
+
         }
 
     }
@@ -191,13 +219,12 @@ function Card_move(pos_index,card_bgd_id) {
                     blank_index=idx;
                     card[i].index=idx;//复原被移动的index
 
-                    pos_index.fresh_pos(card);
+                    pos_index.fresh_pos(card,card[i].index);//不要移动被点击的卡片
 
                 }
 
-                card[i].node.style.left=mouse.x-150/2+"px";
-                card[i].node.style.top=mouse.y-100/2+"px";
-                card[i].node.style.backgroundColor="#f40";
+                card[i].node.style.left=mouse.x-100/2+"px";
+                card[i].node.style.top=mouse.y-150/2+"px";
                 //console.log( event.pageX + ".." + event.pageY);
             }
 
@@ -220,7 +247,7 @@ function Card_move(pos_index,card_bgd_id) {
     }
 
 
-    this.fresh_blank_index=function (mouse) {
+    this.fresh_blank_index=function (mouse) {//刷新空白的位置
         blank_index=pos_index.pos_to_index(mouse);
 
     }
@@ -229,7 +256,12 @@ function Card_move(pos_index,card_bgd_id) {
     this.set_pos_index=function(mouse,status) {
 
         let index=pos_index.pos_to_index(mouse);
-        pos_index.set_card_pos(status.node,index);
+        var set=pos_index.index_to_pos(index);
+        set.x+=20;
+        set.y+=20;
+        status.node.style.left=set.x+"px";
+        status.node.style.top=set.y+"px";
+        //pos_index.set_card_pos(status.node,index);
         status.index=index;
 
     }
